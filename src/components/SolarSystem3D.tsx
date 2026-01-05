@@ -118,17 +118,17 @@ export default function SolarSystem3D({ height = '300px' }: { height?: string })
                 })}
             </div>
 
-            {/* Leaderboard */}
-            <div className="absolute bottom-2 right-2 flex flex-col gap-0.5 text-[9px] font-mono bg-black/60 px-2 py-1 rounded border border-slate-800">
+            {/* Leaderboard - Compact on mobile */}
+            <div className="absolute bottom-1 sm:bottom-2 right-1 sm:right-2 flex flex-col gap-0.5 text-[7px] sm:text-[9px] font-mono bg-black/60 px-1.5 sm:px-2 py-1 rounded border border-slate-800">
                 {rankedTeams.map((team, i) => {
                     const avgVel = (team.velocity.reduce((a, b) => a + b, 0) / team.velocity.length).toFixed(0);
                     return (
-                        <div key={team.id} className="flex items-center gap-1.5">
-                            <span className="text-slate-500 w-4">#{i + 1}</span>
+                        <div key={team.id} className="flex items-center gap-1 sm:gap-1.5">
+                            <span className="text-slate-500 w-3 sm:w-4">#{i + 1}</span>
                             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: teamColors[team.id] }} />
-                            <span className="w-12" style={{ color: teamColors[team.id] }}>{team.name.replace('Team ', '')}</span>
-                            <span className="text-slate-500 w-6">{team.score.toFixed(0)}pts</span>
-                            <span className="text-cyan-600">{avgVel}v</span>
+                            <span className="hidden sm:inline w-12" style={{ color: teamColors[team.id] }}>{team.name.replace('Team ', '')}</span>
+                            <span className="text-slate-500 w-5 sm:w-6">{team.score.toFixed(0)}</span>
+                            <span className="hidden sm:inline text-cyan-600">{avgVel}v</span>
                         </div>
                     );
                 })}

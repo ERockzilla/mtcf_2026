@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,7 +94,7 @@ export default function ArenaPage() {
     // }, []);
 
     return (
-        <div className="flex h-screen w-full flex-col bg-slate-950 text-slate-50 overflow-hidden font-sans">
+        <div className="flex h-screen w-full flex-col bg-slate-950 text-slate-50 overflow-y-auto lg:overflow-hidden font-sans">
 
             {/* Game Over Overlay */}
             <AnimatePresence>
@@ -130,30 +129,36 @@ export default function ArenaPage() {
                 )}
             </AnimatePresence>
 
-            {/* Header */}
-            <header className="flex h-14 items-center justify-between border-b border-slate-800 bg-slate-900 px-6">
-                <div className="flex items-center gap-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded bg-cyan-500 font-bold text-slate-900">M</div>
-                    <h1 className="text-lg font-semibold tracking-wide text-gray-200">MTCF <span className="text-cyan-500">ARENA</span></h1>
-                    <Badge variant="outline" className="border-red-500 text-red-500 animate-pulse">LIVE • EPISODE 01</Badge>
+            {/* Header - Responsive */}
+            <header className="flex h-12 md:h-14 items-center justify-between border-b border-slate-800 bg-slate-900 px-3 md:px-6 sticky top-0 z-50">
+                <div className="flex items-center gap-2 md:gap-4">
+                    <Button variant="ghost" size="icon" onClick={handleReturnToHub} className="h-8 w-8 text-slate-400 hover:text-cyan-400 hover:bg-slate-800">
+                        <Home className="h-4 w-4" />
+                    </Button>
+                    <div className="h-6 w-[1px] bg-slate-800 mx-1" />
+                    <div className="flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded bg-cyan-500 font-bold text-slate-900 text-sm md:text-base">M</div>
+                    <h1 className="text-sm md:text-lg font-semibold tracking-wide text-gray-200">MTCF <span className="text-cyan-500">ARENA</span></h1>
+                    <Badge variant="outline" className="border-red-500 text-red-500 animate-pulse text-[10px] md:text-xs hidden sm:inline-flex">LIVE</Badge>
                 </div>
-                <div className="text-sm text-slate-400 font-mono">
-                    <span className="mr-2 text-slate-500">T-MINUS</span>
-                    <span className="text-cyan-400 text-lg font-bold">{formatTime(timeLeft)}</span>
+                <div className="text-xs md:text-sm text-slate-400 font-mono">
+                    <span className="hidden md:inline mr-2 text-slate-500">T-MINUS</span>
+                    <span className="text-cyan-400 text-sm md:text-lg font-bold">{formatTime(timeLeft)}</span>
                 </div>
             </header>
 
-            {/* Main Content Grid */}
-            <div className="flex flex-1 overflow-hidden">
+            {/* Main Content - Single scrollable column on mobile */}
+            <div className="flex flex-1 flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
 
                 {/* LEFT PANEL: The Stream */}
-                <div className="flex w-3/5 flex-col border-r border-slate-800 bg-black relative overflow-hidden">
+                <div className="flex w-full lg:w-3/5 flex-col border-b lg:border-b-0 lg:border-r border-slate-800 bg-black relative">
 
-                    {/* Main Focused Feed */}
-                    <div className="flex-1 relative bg-black group">
-                        <div className="absolute top-4 left-4 z-10 flex gap-2">
-                            <Badge className="bg-red-600 text-white animate-pulse">LIVE</Badge>
-                            <Badge className="bg-slate-900/80 text-white border-slate-700">Cam {focusedIndex + 1}: {teamAssets[focusedIndex].name}</Badge>
+                    {/* Video Section - Smaller on mobile (h-48) */}
+                    <div className="relative bg-black h-48 sm:h-64 lg:flex-1 lg:h-auto">
+                        <div className="absolute top-2 left-2 z-10 flex gap-1">
+                            <Badge className="bg-red-600 text-white animate-pulse text-[10px] h-5">LIVE</Badge>
+                            <Badge className={`text-white text-[10px] h-5 ${focusedIndex === 2 ? 'bg-pink-600 border-pink-500' : 'bg-slate-900/80 border-slate-700'}`}>
+                                {focusedIndex === 2 ? '🛡️ Oversight' : teamAssets[focusedIndex].name}
+                            </Badge>
                         </div>
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -161,7 +166,7 @@ export default function ArenaPage() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                transition={{ duration: 1 }}
+                                transition={{ duration: 0.5 }}
                                 className="h-full w-full"
                             >
                                 {teamAssets[focusedIndex].type === 'video' ? (
@@ -170,7 +175,7 @@ export default function ArenaPage() {
                                         loop
                                         muted
                                         playsInline
-                                        className="h-full w-full object-cover opacity-90"
+                                        className="h-full w-full object-cover"
                                     >
                                         <source src={teamAssets[focusedIndex].src} type="video/mp4" />
                                     </video>
@@ -178,17 +183,17 @@ export default function ArenaPage() {
                                     <img
                                         src={teamAssets[focusedIndex].src}
                                         alt={teamAssets[focusedIndex].name}
-                                        className="h-full w-full object-cover opacity-90"
+                                        className="h-full w-full object-cover"
                                     />
                                 )}
                             </motion.div>
                         </AnimatePresence>
                     </div>
 
-                    {/* 4 Other Feeds Grid */}
-                    <div className="h-48 grid grid-cols-4 border-t border-slate-800">
+                    {/* 4 Other Feeds Grid - Hidden on mobile */}
+                    <div className="hidden md:grid h-32 lg:h-48 grid-cols-4 border-t border-slate-800">
                         {teamAssets.map((asset, i) => {
-                            if (i === focusedIndex) return null; // Skip currently focused
+                            if (i === focusedIndex) return null;
                             return (
                                 <div key={i} className="border-r border-slate-800 bg-black relative group overflow-hidden first:border-l-0 last:border-r-0">
                                     <div className="absolute top-2 left-2 z-10">
@@ -205,27 +210,62 @@ export default function ArenaPage() {
                                     </div>
                                 </div>
                             );
-                        }).filter(Boolean)} {/* Filter out nulls */}
+                        }).filter(Boolean)}
                     </div>
 
-                    {/* Bottom Ticker */}
-                    <div className="h-8 bg-cyan-950 flex items-center px-4 overflow-hidden whitespace-nowrap border-t border-cyan-900">
+                    {/* Mobile: Camera Switcher - Teams + Separate Oversight View */}
+                    <div className="flex md:hidden justify-between items-center gap-2 px-2 py-3 bg-slate-900 border-t border-slate-800">
+                        {/* Team Buttons */}
+                        <div className="flex gap-2 overflow-x-auto">
+                            {teamAssets.map((asset, i) => {
+                                // Skip Gamma (index 2) - it's shown separately as Oversight
+                                if (i === 2) return null;
+                                return (
+                                    <button
+                                        key={i}
+                                        onClick={() => setFocusedIndex(i)}
+                                        className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${i === focusedIndex
+                                            ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30'
+                                            : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                                            }`}
+                                    >
+                                        <span className={`h-2 w-2 rounded-full ${i === focusedIndex ? 'bg-white' : 'bg-slate-500'}`} />
+                                        {asset.name.replace('Team ', '')}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {/* Oversight View Button - Distinct Style */}
+                        <button
+                            onClick={() => setFocusedIndex(2)}
+                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${focusedIndex === 2
+                                ? 'bg-pink-600 text-white shadow-lg shadow-pink-500/30 border-pink-500'
+                                : 'bg-slate-950 text-pink-400 border-pink-500/50 hover:bg-pink-950/50'
+                                }`}
+                        >
+                            <Shield className="h-3 w-3" />
+                            Oversight
+                        </button>
+                    </div>
+
+                    {/* Bottom Ticker - Smaller on mobile */}
+                    <div className="h-6 md:h-8 bg-cyan-950 flex items-center px-2 md:px-4 overflow-hidden whitespace-nowrap border-t border-cyan-900">
                         <motion.div
                             animate={{ x: ["100%", "-100%"] }}
                             transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-                            className="flex gap-8 text-xs font-mono text-cyan-400 uppercase tracking-widest"
+                            className="flex gap-8 text-[10px] md:text-xs font-mono text-cyan-400 uppercase tracking-widest"
                         >
                             <span>+++ NEW BID: Pfizer places $50k on Team Alpha +++</span>
-                            <span>+++ REGULATORY ALERT: Team Beta flagged for HIPAA check +++</span>
-                            <span>+++ SYSTEM: GPU Cluster B re-routed to Inference Task +++</span>
+                            <span>+++ REGULATORY ALERT: Team Beta flagged +++</span>
+                            <span>+++ SYSTEM: GPU Cluster B re-routed +++</span>
                         </motion.div>
                     </div>
                 </div>
 
-                {/* RIGHT PANEL: Telemetry & Governance */}
-                <div className="flex w-2/5 flex-col bg-slate-900">
-                    <Tabs defaultValue="telemetry" className="flex-1 flex flex-col">
-                        <div className="border-b border-slate-800 px-3 py-2">
+                {/* RIGHT PANEL: Telemetry & Governance - Flows with page on mobile */}
+                <div className="w-full lg:w-2/5 bg-slate-900 lg:flex lg:flex-col lg:overflow-hidden">
+                    <Tabs defaultValue="telemetry" className="flex flex-col">
+                        <div className="border-b border-slate-800 px-2 sm:px-3 py-2">
                             <TabsList className="w-full h-10 bg-slate-950/50 rounded-md p-1 flex gap-1">
                                 <TabsTrigger
                                     value="telemetry"
@@ -248,7 +288,8 @@ export default function ArenaPage() {
                             </TabsList>
                         </div>
 
-                        <ScrollArea className="flex-1 p-4">
+                        {/* Tab Content - Flows in page on mobile, scrolls on desktop */}
+                        <div className="p-3 sm:p-4 lg:flex-1 lg:overflow-y-auto">
                             <TabsContent value="telemetry" className="space-y-4 data-[state=inactive]:hidden mt-0">
                                 {/* Velocity Chart */}
                                 <Card className="bg-slate-950 border-slate-800">
@@ -300,7 +341,15 @@ export default function ArenaPage() {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-0">
-                                        <img src="/oversight.png" alt="Regulatory Oversight" className="w-full h-auto opacity-80" />
+                                        <video
+                                            autoPlay
+                                            loop
+                                            muted
+                                            playsInline
+                                            className="w-full h-auto opacity-80"
+                                        >
+                                            <source src="/Team_Gamma_Sci_Fi_Robot_Video.mp4" type="video/mp4" />
+                                        </video>
                                     </CardContent>
                                 </Card>
                             </TabsContent>
@@ -336,12 +385,12 @@ export default function ArenaPage() {
                                     )}
                                 </div>
                             </TabsContent>
-                        </ScrollArea>
+                        </div>
 
-                        {/* Terminal / Logs Panel */}
-                        <div className="h-48 border-t border-slate-800 bg-slate-950 p-2 font-mono text-xs">
-                            <div className="flex items-center gap-2 mb-2 text-slate-500 px-2">
-                                <Terminal className="h-3 w-3" /> System Logs
+                        {/* Terminal / Logs Panel - Very compact on mobile */}
+                        <div className="h-24 sm:h-32 lg:h-40 border-t border-slate-800 bg-slate-950 p-2 font-mono text-[9px] sm:text-[10px] lg:text-xs overflow-y-auto">
+                            <div className="flex items-center gap-2 mb-1 text-slate-500 px-1">
+                                <Terminal className="h-3 w-3" /> Logs
                             </div>
                             <div className="space-y-1 px-2 text-slate-400">
                                 <AnimatePresence>

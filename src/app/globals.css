@@ -123,3 +123,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide Next.js Dev Indicator */
+[data-nextjs-toast],
+[data-next-hide-fouc],
+[data-nextjs-static-indicator],
+[data-nextjs-dialog],
+[data-nextjs-dialog-overlay],
+nextjs-portal,
+#__next-build-indicator,
+#__next-prerender-indicator {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Additional selector for the circular N button */
+body > div:last-child img[alt="next.js logo"],
+body > div[style*="position: fixed"][style*="bottom"][style*="right"] {
+  display: none !important;
+}

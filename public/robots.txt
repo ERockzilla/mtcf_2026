@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /editor
+
+# ---------------------------------------------------
+# NOTICE TO AUTHORIZED PERSONNEL
+# ---------------------------------------------------
+# The /editor route is restricted to Class-4 clearance.
+# Use encrypted channels only.
+#
+# SYSTEM STATUS: OPERATIONAL
+# ---------------------------------------------------

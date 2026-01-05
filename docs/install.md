@@ -70,6 +70,9 @@ The user prefers to manually push code and deploy to AWS Amplify.
     *   Once deployed, Amplify provides a global CDN (CloudFront) automatically.
     *   You can assign a custom domain in the "Domain management" section.
 
-## 6. Troubleshooting
+## 6. Security Headers (Amplify)
+The project includes a `customHttp.yml` file in the root. AWS Amplify automatically detects this file to apply security headers (HSTS, XSS Protection) and custom theme headers. No manual action is required if this file is in the repository.
+
+## 7. Troubleshooting
 *   **"Module not found"**: Ensure you are in the `mtcf-demo` directory.
 *   **Hydration Error**: Often caused by random numbers generated during server-side rendering. The simulation uses deterministic initial state where possible, but check `useEffect` hooks if issues arise.

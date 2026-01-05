@@ -2,23 +2,21 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSimulation } from "@/context/SimulationContext";
 import { useEffect, useState, useRef } from "react";
+import dynamic from 'next/dynamic';
+import { Github, Rss } from "lucide-react";
+
+const MatrixRain = dynamic(() => import('@/components/MatrixRain'), { ssr: false });
 
 export default function Home() {
   const { startSimulation } = useSimulation();
   const [countdown, setCountdown] = useState<number | null>(null);
   const hasLaunched = useRef(false); // Guard to prevent double-launch
 
-  // Auto-Launch after 10s idle
-  useEffect(() => {
-    if (hasLaunched.current) return; // Already launched, skip
-    const timer = setTimeout(() => {
-      handleEnterSystem();
-    }, 10000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Auto-Launch removed in favor of manual selection
 
   const handleEnterSystem = () => {
     if (hasLaunched.current) return; // Prevent duplicate calls
@@ -36,8 +34,31 @@ export default function Home() {
     }
   }, [countdown, startSimulation]);
 
+  // Console Easter Egg
+  useEffect(() => {
+    const styles = [
+      'background: linear-gradient(to right, #000000, #111111)',
+      'color: #06b6d4',
+      'display: block',
+      'text-align: center',
+      'font-size: 16px',
+      'padding: 10px',
+      'font-family: monospace',
+      'border: 1px solid #06b6d4',
+    ].join(';');
+    console.log('%c MTCF PROTOCOL INITIATED ', styles);
+    console.log('%c > SYSTEM ACCESS: GRANTED', 'color: #10b981; font-family: monospace;');
+    console.log('%c > SECRET TOOLS: /editor', 'color: #64748b; font-family: monospace;');
+  }, []);
+
   return (
-    <main className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-black text-white selection:bg-cyan-500/30">
+    <main className="relative flex h-screen w-full flex-col items-center overflow-hidden bg-black text-white selection:bg-cyan-500/30">
+
+      {/* Matrix Rain Background - Base Layer */}
+      <MatrixRain />
+
+      {/* N Logo Hider (Bottom Right) */}
+      <div className="fixed bottom-0 right-0 w-16 h-16 bg-black z-[9999] pointer-events-none" />
 
       {/* 3...2...1 Countdown Overlay */}
       <AnimatePresence>
@@ -61,27 +82,39 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* Background Ambience - Deep Space with Nebula */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#0c1929_0%,_#030712_50%,_#000000_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(6,182,212,0.08)_0%,_transparent_40%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(168,85,247,0.06)_0%,_transparent_40%)]" />
+      {/* Dark Gradient Overlay - Semi-transparent to show Matrix */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 z-[2]" />
 
-      {/* 3D ARENA VISUALIZATION - Enhanced with MTCF Letters */}
-      <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: '1200px' }}>
+      {/* MTCF TITLE - At the very top */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="absolute top-4 sm:top-8 left-0 right-0 z-[5] flex flex-col items-center text-center"
+      >
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+          MTCF
+        </h1>
+        <p className="text-[10px] sm:text-xs font-light tracking-[0.15em] sm:tracking-[0.2em] text-cyan-400/70 uppercase mt-1">
+          MedTech Cognitive Foundry
+        </p>
+      </motion.div>
+
+      {/* 3D ARENA VISUALIZATION - Centered in top empty space */}
+      <div className="absolute inset-0 flex items-start justify-center z-[3] pt-[12vh] sm:pt-[15vh]" style={{ perspective: '1200px' }}>
         <div
-          className="relative h-[700px] w-[700px]"
+          className="relative h-[30vh] w-[30vh] sm:h-[40vh] sm:w-[40vh] md:h-[50vh] md:w-[50vh] lg:h-[60vh] lg:w-[60vh]"
           style={{
             transformStyle: 'preserve-3d',
             transform: 'rotateX(65deg) rotateZ(-15deg)',
           }}
         >
-
           {/* Depth Shadow Layer (Creates 3D floating effect) */}
           <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 blur-3xl"
             style={{ transform: 'translateZ(-100px)' }} />
 
-          {/* Core - 3D Gaussian Laser Beam Effect */}
-          {/* Outer Diffuse Glow (Gaussian Spread) */}
+          {/* Core - Atomic Energy Source */}
+          {/* Outer Diffuse Glow - Cyan/Teal */}
           <motion.div
             animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -92,7 +125,7 @@ export default function Home() {
             }}
           />
 
-          {/* Mid Beam Layer */}
+          {/* Mid Beam Layer - Intense Cyan */}
           <motion.div
             animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
@@ -103,193 +136,110 @@ export default function Home() {
             }}
           />
 
-          {/* Inner Intense Core */}
+          {/* Inner Intense Core - White/Blue */}
           <motion.div
-            animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+            animate={{ scale: [1, 1.2, 1] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full"
+            className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white blur-md"
             style={{
-              background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(34,211,238,0.8) 30%, rgba(6,182,212,0.5) 60%, transparent 80%)',
-              boxShadow: '0 0 40px 15px rgba(34,211,238,0.6), 0 0 80px 30px rgba(6,182,212,0.3)',
+              boxShadow: '0 0 40px 10px rgba(255,255,255,0.8), 0 0 80px 20px rgba(6,182,212,0.8)',
             }}
           />
 
-          {/* Laser Peak (Brightest Point) */}
-          <motion.div
-            animate={{ scale: [0.9, 1.3, 0.9], opacity: [0.8, 1, 0.8] }}
-            transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
-            style={{
-              boxShadow: '0 0 20px 10px rgba(255,255,255,0.8), 0 0 40px 20px rgba(34,211,238,0.6), 0 0 80px 30px rgba(6,182,212,0.4)',
-            }}
-          />
-
-          {/* Vertical Beam Column (Z-axis illusion) */}
-          <motion.div
-            animate={{ scaleY: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute left-1/2 top-1/2 w-4 h-40 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              background: 'linear-gradient(to bottom, transparent 0%, rgba(34,211,238,0.6) 40%, rgba(34,211,238,0.6) 60%, transparent 100%)',
-              filter: 'blur(4px)',
-            }}
-          />
-
-          {/* Orbit Ring 1 - "M" */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-            className="absolute left-1/2 top-1/2 h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              border: '1px solid rgba(6,182,212,0.3)',
-              boxShadow: '0 0 15px rgba(6,182,212,0.15), inset 0 0 15px rgba(6,182,212,0.1)',
-            }}
-          >
-            <motion.span
-              className="absolute top-0 left-1/2 text-3xl font-black text-cyan-400"
+          {/* Orbiting Particles (Electrons) - No Visible Orbital Lines */}
+          {[0, 60, 120, 180, 240, 300].map((deg, i) => (
+            <motion.div
+              key={i}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
               style={{
-                textShadow: '0 0 20px #22d3ee, 0 0 40px #22d3ee, 0 0 60px rgba(34,211,238,0.5)',
-                transformStyle: 'preserve-3d',
+                width: `${250 + i * 20}px`,
+                height: `${250 + i * 20}px`,
+                transform: `rotateX(${65 + (i % 2) * 20}deg) rotateY(${deg}deg)`,
               }}
-              animate={{
-                rotateY: 360,
-                rotateZ: -360,
-              }}
-              transition={{
-                rotateY: { duration: 3, repeat: Infinity, ease: "linear" },
-                rotateZ: { duration: 12, repeat: Infinity, ease: "linear" },
-              }}
+              animate={{ rotateZ: 360 }}
+              transition={{ duration: 7 + i, repeat: Infinity, ease: "linear" }}
             >
-              M
-            </motion.span>
-          </motion.div>
+              <div className={`absolute top-0 left-1/2 h-${i % 2 === 0 ? '2' : '3'} w-${i % 2 === 0 ? '2' : '3'} -translate-x-1/2 -translate-y-1/2 rounded-full ${i % 2 === 0 ? 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'bg-teal-400 shadow-[0_0_10px_rgba(45,212,191,0.8)]'}`} />
+            </motion.div>
+          ))}
 
-          {/* Orbit Ring 2 - "T" */}
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute left-1/2 top-1/2 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              border: '1px solid rgba(168,85,247,0.3)',
-              boxShadow: '0 0 20px rgba(168,85,247,0.15), inset 0 0 20px rgba(168,85,247,0.1)',
-            }}
-          >
-            <motion.span
-              className="absolute top-0 left-1/2 text-3xl font-black text-purple-400"
-              style={{
-                textShadow: '0 0 20px #a855f7, 0 0 40px #a855f7, 0 0 60px rgba(168,85,247,0.5)',
-                transformStyle: 'preserve-3d',
-              }}
-              animate={{
-                rotateY: -360,
-                rotateZ: 360,
-              }}
-              transition={{
-                rotateY: { duration: 4, repeat: Infinity, ease: "linear" },
-                rotateZ: { duration: 20, repeat: Infinity, ease: "linear" },
-              }}
-            >
-              T
-            </motion.span>
-          </motion.div>
 
-          {/* Orbit Ring 3 - "C" */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="absolute left-1/2 top-1/2 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              border: '1px solid rgba(236,72,153,0.25)',
-              boxShadow: '0 0 25px rgba(236,72,153,0.1), inset 0 0 25px rgba(236,72,153,0.08)',
-            }}
-          >
-            <motion.span
-              className="absolute top-0 left-1/2 text-3xl font-black text-pink-400"
-              style={{
-                textShadow: '0 0 20px #ec4899, 0 0 40px #ec4899, 0 0 60px rgba(236,72,153,0.5)',
-                transformStyle: 'preserve-3d',
-              }}
-              animate={{
-                rotateY: 360,
-                rotateZ: -360,
-              }}
-              transition={{
-                rotateY: { duration: 5, repeat: Infinity, ease: "linear" },
-                rotateZ: { duration: 30, repeat: Infinity, ease: "linear" },
-              }}
-            >
-              C
-            </motion.span>
-          </motion.div>
-
-          {/* Orbit Ring 4 - "F" (Outermost) */}
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-            className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              border: '1px dashed rgba(34,197,94,0.2)',
-              boxShadow: '0 0 30px rgba(34,197,94,0.08)',
-            }}
-          >
-            <motion.span
-              className="absolute top-0 left-1/2 text-2xl font-black text-green-400"
-              style={{
-                textShadow: '0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 50px rgba(34,197,94,0.5)',
-                transformStyle: 'preserve-3d',
-              }}
-              animate={{
-                rotateY: -360,
-                rotateZ: 360,
-              }}
-              transition={{
-                rotateY: { duration: 6, repeat: Infinity, ease: "linear" },
-                rotateZ: { duration: 45, repeat: Infinity, ease: "linear" },
-              }}
-            >
-              F
-            </motion.span>
-          </motion.div>
 
         </div>
       </div>
 
-      {/* CONTENT OVERLAY */}
-      <div className="z-10 flex flex-col items-center gap-8 px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-          className="space-y-2"
-        >
-          <h1 className="text-5xl font-bold tracking-tighter sm:text-7xl md:text-9xl bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
-            MTCF
-          </h1>
-          <p className="text-sm font-light tracking-[0.3em] text-cyan-400/80 uppercase">
-            MedTech Cognitive Foundry
-          </p>
-        </motion.div>
-
+      {/* ARENA SELECTION - Full height scrollable, cards can scroll up */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center overflow-y-auto pt-[40vh] sm:pt-[35vh] pb-8 px-4">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
+          transition={{ delay: 1.5 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-4"
         >
-          <Button
+          {/* Card 1: AIthon 2026 (Active) */}
+          <div
             onClick={handleEnterSystem}
-            size="lg"
-            className="h-14 rounded-full border border-cyan-500/50 bg-cyan-950/30 px-10 text-lg text-cyan-50 backdrop-blur-md transition-all hover:bg-cyan-900/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+            className="group relative flex flex-col items-center justify-center gap-4 rounded-xl border border-cyan-500/30 bg-black/40 p-6 backdrop-blur-sm transition-all hover:scale-105 hover:border-cyan-400 hover:bg-cyan-950/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)] cursor-pointer"
           >
-            ENTER SYSTEM
-          </Button>
-        </motion.div>
-      </div>
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <h3 className="text-xl font-bold text-cyan-50">AIthon 2026</h3>
+            <p className="text-xs text-cyan-200/70">Algorithm Optimization Arena</p>
+            <Button
+              size="sm"
+              className="mt-2 bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+            >
+              ENTER ARENA
+            </Button>
+          </div>
 
-      {/* FOOTER DATA STREAM */}
-      <div className="absolute bottom-8 flex w-full justify-between px-8 text-[10px] font-mono text-slate-600">
-        <span>FREQ: 40.23Hz</span>
-        <span>SYS: ONLINE</span>
-        <span>LOC: US-EAST-1</span>
+          {/* Card 2: BioSim Challenge (Coming Soon) */}
+          <div className="group relative flex flex-col items-center justify-center gap-4 rounded-xl border border-slate-700/30 bg-black/40 p-6 backdrop-blur-sm opacity-60 grayscale transition-all hover:grayscale-0 hover:opacity-100 cursor-not-allowed">
+            <h3 className="text-xl font-bold text-slate-400 group-hover:text-purple-400">BioSim Challenge</h3>
+            <p className="text-xs text-slate-500">Molecular Folding Simulation</p>
+            <Badge variant="outline" className="mt-2 border-slate-600 text-slate-500">COMING SOON</Badge>
+          </div>
+
+          {/* Card 3: CyberMed Defense (Coming Soon) */}
+          <div className="group relative flex flex-col items-center justify-center gap-4 rounded-xl border border-slate-700/30 bg-black/40 p-6 backdrop-blur-sm opacity-60 grayscale transition-all hover:grayscale-0 hover:opacity-100 cursor-not-allowed">
+            <h3 className="text-xl font-bold text-slate-400 group-hover:text-green-400">CyberMed Defense</h3>
+            <p className="text-xs text-slate-500">Network Security Wargame</p>
+            <Badge variant="outline" className="mt-2 border-slate-600 text-slate-500">COMING SOON</Badge>
+          </div>
+        </motion.div>
+
+        {/* FOOTER DATA STREAM & LINKS */}
+        <div className="mt-auto pt-16 pb-4 flex w-full items-center justify-between px-4 sm:px-8 text-[10px] font-mono text-slate-600 z-20">
+          {/* Left: Git Link + Stats */}
+          <div className="flex items-center gap-4">
+            <Link href="https://github.com" target="_blank">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-cyan-400 hover:bg-cyan-950/30">
+                <Github className="h-4 w-4" />
+                <span className="sr-only">GitHub</span>
+              </Button>
+            </Link>
+            <span className="hidden sm:inline">FREQ: 40.23Hz</span>
+          </div>
+
+          {/* Center: System Status */}
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-green-500/50 animate-pulse" />
+            <span>SYS: ONLINE</span>
+          </div>
+
+          {/* Right: RSS + Loc */}
+          <div className="flex items-center gap-4">
+            <span className="hidden sm:inline">LOC: US-EAST-1</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-2 text-slate-500 hover:text-orange-400 hover:bg-orange-950/30"
+              onClick={() => alert("RSS Feed Verified: 12 Active Channels")}
+            >
+              <Rss className="h-4 w-4" />
+              <span className="hidden sm:inline">FEED</span>
+            </Button>
+          </div>
+        </div>
       </div>
 
     </main>

@@ -1,0 +1,22 @@
+customHeaders:
+  - pattern: '**/*'
+    headers:
+      - key: 'Strict-Transport-Security'
+        value: 'max-age=31536000; includeSubDomains'
+      - key: 'X-Frame-Options'
+        value: 'SAMEORIGIN'
+      - key: 'X-XSS-Protection'
+        value: '1; mode=block'
+      - key: 'X-Content-Type-Options'
+        value: 'nosniff'
+      - key: 'Referrer-Policy'
+        value: 'same-origin'
+      - key: 'Permissions-Policy'
+        value: 'geolocation=(), microphone=(), camera=()'
+      # Custom App Theme Headers
+      - key: 'X-MTCF-Protocol'
+        value: 'Active'
+      - key: 'X-Theme-Mode'
+        value: 'Dark/Cyber'
+      - key: 'X-Hidden-Secret'
+        value: 'Navigate to /editor'
