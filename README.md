@@ -20,7 +20,6 @@ The **MTCF Demo** is a high-fidelity "Wizard of Oz" simulation platform designed
 ### 3. Governance & Security
 - **Interactive Graph**: A ReactFlow-powered network graph visualizing AI data pipelines and audit checkpoints.
 - **Security Hardening**: Pre-configured `customHttp.yml` for AWS Amplify headers (HSTS, XSS Protection).
-- **Easter Eggs**: Hidden developer tools (Secrets in Console, `/editor` route) to simulate a "hackable" layer.
 
 ## 🛠️ Tech Stack
 - **Framework**: Next.js 14 (App Router)
@@ -47,8 +46,6 @@ This project is optimized for deployment on AWS Amplify with the domain `rockrun
 1.  **Push** code to GitHub `main` branch.
 2.  **Connect** repository in AWS Amplify.
 3.  **Verify** headers using `curl -I https://rockrun.systems`.
-
-See [DEPLOY.md](./DEPLOY.md) for detailed instructions.
 
 ---
 *MedTech Cognitive Foundry - Building the Future of Responsible AI*
