@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import { TriangleAlert, Terminal, Activity, Shield, Cpu, Play, Home } from "lucide-react";
 import dynamic from 'next/dynamic';
@@ -17,9 +17,17 @@ const SolarSystem3D = dynamic(() => import('@/components/SolarSystem3D'), { ssr:
 
 export default function ArenaPage() {
     const router = useRouter();
-    const { isActive, teams, bids, gameTime, stopSimulation } = useSimulation();
+    const { isActive, teams, bids, gameTime, stopSimulation, systemLogs } = useSimulation();
     const [timeLeft, setTimeLeft] = useState(7200);
     const [focusedIndex, setFocusedIndex] = useState(2);
+    const endOfLogsRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll logs
+    useEffect(() => {
+        if (endOfLogsRef.current) {
+            endOfLogsRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [systemLogs]);
 
     // Determine Winner (Highest Score)
     const winner = [...teams].sort((a, b) => b.score - a.score)[0];
@@ -47,28 +55,15 @@ export default function ArenaPage() {
         { id: 'epsilon', name: 'Team Epsilon', type: 'image', src: '/team3.png' },
     ];
 
-    // Derive Logs from Teams
-    const logs = teams.flatMap((t: any) => t.logs).slice(-10).reverse();
-
     // Create Chart Data on the Fly (Simplified for Demo)
-    // In a real app, you'd keep a history buffer in Context
     const velocityData = Array.from({ length: 10 }, (_, i) => {
         const point: any = { time: i };
         teams.forEach((t: any) => point[t.id] = t.velocity[i]);
         return point;
     });
 
-    // Transform for Radar Chart
-    const constraintData = [
-        { subject: 'Clinical', A: teams[0]?.score || 0, B: teams[1]?.score || 0, fullMark: 100 },
-        { subject: 'Regulatory', A: (teams[0]?.score || 0) - 10, B: (teams[1]?.score || 0) + 5, fullMark: 100 },
-        { subject: 'Technical', A: (teams[0]?.score || 0) + 5, B: (teams[1]?.score || 0) - 5, fullMark: 100 },
-    ];
-
-
     // Colors for 5 Teams
     const colors = ["#06b6d4", "#ec4899", "#22c55e", "#eab308", "#8b5cf6"];
-
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -83,15 +78,6 @@ export default function ArenaPage() {
         const s = seconds % 60;
         return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
-
-    // Simulate logs - Removed, now derived from useSimulation
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         const newLog = `[${new Date().toLocaleTimeString()}] INFO: Team Alpha commit pushed (Hash: ${Math.random().toString(16).substring(2, 8)})`;
-    //         setLogs(prev => [newLog, ...prev].slice(0, 10));
-    //     }, 2000);
-    //     return () => clearInterval(interval);
-    // }, []);
 
     return (
         <div className="flex h-screen w-full flex-col bg-slate-950 text-slate-50 overflow-y-auto lg:overflow-hidden font-sans">
@@ -262,9 +248,9 @@ export default function ArenaPage() {
                     </div>
                 </div>
 
-                {/* RIGHT PANEL: Telemetry & Governance - Flows with page on mobile */}
+                {/* RIGHT PANEL: Telemetry & Governance & Logs */}
                 <div className="w-full lg:w-2/5 bg-slate-900 lg:flex lg:flex-col lg:overflow-hidden">
-                    <Tabs defaultValue="telemetry" className="flex flex-col">
+                    <Tabs defaultValue="telemetry" className="flex flex-col h-full">
                         <div className="border-b border-slate-800 px-2 sm:px-3 py-2">
                             <TabsList className="w-full h-10 bg-slate-950/50 rounded-md p-1 flex gap-1">
                                 <TabsTrigger
@@ -285,12 +271,18 @@ export default function ArenaPage() {
                                 >
                                     Market
                                 </TabsTrigger>
+                                <TabsTrigger
+                                    value="logs"
+                                    className="flex-1 h-full text-xs font-medium rounded data-[state=active]:bg-slate-600 data-[state=active]:text-white data-[state=inactive]:text-slate-400 data-[state=inactive]:hover:text-slate-200 transition-colors"
+                                >
+                                    Avg. Logs
+                                </TabsTrigger>
                             </TabsList>
                         </div>
 
-                        {/* Tab Content - Flows in page on mobile, scrolls on desktop */}
-                        <div className="p-3 sm:p-4 lg:flex-1 lg:overflow-y-auto">
-                            <TabsContent value="telemetry" className="space-y-4 data-[state=inactive]:hidden mt-0">
+                        {/* Tab Content */}
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden relative">
+                            <TabsContent value="telemetry" className="space-y-4 data-[state=inactive]:hidden mt-0 p-3 sm:p-4">
                                 {/* Velocity Chart */}
                                 <Card className="bg-slate-950 border-slate-800">
                                     <CardHeader className="pb-2">
@@ -332,7 +324,7 @@ export default function ArenaPage() {
                                 </Card>
                             </TabsContent>
 
-                            <TabsContent value="governance" className="data-[state=inactive]:hidden mt-0 space-y-4">
+                            <TabsContent value="governance" className="data-[state=inactive]:hidden mt-0 space-y-4 p-3 sm:p-4">
                                 <GovernanceGraph height="400px" activeAlert={teams.some((t: any) => t.status === 'flagged')} />
                                 <Card className="bg-slate-950 border-slate-800 overflow-hidden">
                                     <CardHeader className="pb-2">
@@ -354,7 +346,7 @@ export default function ArenaPage() {
                                 </Card>
                             </TabsContent>
 
-                            <TabsContent value="market" className="data-[state=inactive]:hidden mt-0">
+                            <TabsContent value="market" className="data-[state=inactive]:hidden mt-0 p-3 sm:p-4">
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                         <h3 className="text-sm font-medium text-slate-400">Live Bid Ticker</h3>
@@ -385,29 +377,45 @@ export default function ArenaPage() {
                                     )}
                                 </div>
                             </TabsContent>
+
+                            <TabsContent value="logs" className="data-[state=inactive]:hidden mt-0 h-full p-0">
+                                <Card className="bg-black border-slate-800 h-full flex flex-col font-mono text-xs p-4 shadow-inner shadow-slate-900 rounded-none border-0">
+                                    <div className="flex items-center justify-between mb-2 text-slate-500 border-b border-slate-800 pb-2">
+                                        <div className="flex items-center gap-2">
+                                            <Terminal className="h-4 w-4 text-green-500" />
+                                            <span>ROOT@MTCF-SYS:~/LOGS</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <div className="h-2 w-2 rounded-full bg-red-500 text-[8px] flex items-center justify-center"></div>
+                                            <div className="h-2 w-2 rounded-full bg-yellow-500 text-[8px] flex items-center justify-center"></div>
+                                            <div className="h-2 w-2 rounded-full bg-green-500 text-[8px] flex items-center justify-center"></div>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto space-y-1 scrollbar-thin scrollbar-track-slate-900 scrollbar-thumb-slate-700">
+                                        <AnimatePresence initial={false}>
+                                            {systemLogs.map((log, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    className="break-all"
+                                                >
+                                                    <span className="text-slate-600 mr-2">[{new Date().toLocaleTimeString().split(' ')[0]}:{Math.floor(Math.random() * 999)}]</span>
+                                                    <span className={`${log.includes('Error') ? 'text-red-400' : log.includes('Warning') ? 'text-yellow-400' : log.includes('SYSTEM') ? 'text-cyan-400' : 'text-green-400'}`}>
+                                                        {log}
+                                                    </span>
+                                                </motion.div>
+                                            ))}
+                                            <div ref={endOfLogsRef} />
+                                        </AnimatePresence>
+                                    </div>
+                                    <div className="mt-2 text-slate-500 animate-pulse">_</div>
+                                </Card>
+                            </TabsContent>
+
                         </div>
 
-                        {/* Terminal / Logs Panel - Very compact on mobile */}
-                        <div className="h-24 sm:h-32 lg:h-40 border-t border-slate-800 bg-slate-950 p-2 font-mono text-[9px] sm:text-[10px] lg:text-xs overflow-y-auto">
-                            <div className="flex items-center gap-2 mb-1 text-slate-500 px-1">
-                                <Terminal className="h-3 w-3" /> Logs
-                            </div>
-                            <div className="space-y-1 px-2 text-slate-400">
-                                <AnimatePresence>
-                                    {logs.map((log, i) => (
-                                        <motion.div
-                                            key={i}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0 }}
-                                            className="truncate"
-                                        >
-                                            <span className="text-emerald-500">➜</span> {log}
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                            </div>
-                        </div>
+                        {/* Logs Panel was removed from here */}
 
                     </Tabs>
                 </div>

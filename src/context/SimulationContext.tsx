@@ -25,6 +25,7 @@ type SimulationContextType = {
     gameTime: number; // 0 to 60
     teams: Team[];
     bids: Bid[];
+    systemLogs: string[]; // High-speed system logs
     startSimulation: () => void;
     stopSimulation: () => void;
 };
@@ -45,6 +46,7 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
     const [gameTime, setGameTime] = useState(0);
     const [teams, setTeams] = useState<Team[]>(initialTeams);
     const [bids, setBids] = useState<Bid[]>([]);
+    const [systemLogs, setSystemLogs] = useState<string[]>([]);
     const router = useRouter();
 
     const startSimulation = () => {
@@ -52,15 +54,48 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
         setGameTime(0);
         setTeams(initialTeams);
         setBids([]); // Reset bids
+        setSystemLogs([]);
         router.push('/arena');
     };
 
     const stopSimulation = () => {
         setIsActive(false);
         setGameTime(0);
+        // We can clear logs or keep them
     };
 
-    // The Game Loop (1s Tick)
+    // HIGH SPEED LOG GENERATOR (100ms)
+    useEffect(() => {
+        let logInterval: NodeJS.Timeout;
+        if (isActive) {
+            logInterval = setInterval(() => {
+                const codeSnippets = [
+                    "executing_routine(0x4F3A)...",
+                    "allocating_tensor_memory[GPU_0]: 4096MB",
+                    "optimizing_weights: loss=0.0342 learning_rate=0.001",
+                    "sync_db_shard(us-east-1): committed 450 records",
+                    "invoking_lambda: 'process-patient-metrics' (12ms)",
+                    "secure_handshake: transmitting 256-bit AES key...",
+                    "analyzing_graph: detected cycle in nodes [A -> B -> A]",
+                    "governance_check: HIPAA_COMPLIANCE_PASS",
+                    "rendering_frame: viewport size 1920x1080 (60fps)",
+                    "network_ingress: 1.2 GB/s detected from endpoint /api/v1/stream",
+                    "cache_miss: fetching from generic_bucket_s3...",
+                    "rebalancing_load: node-7 overload, shifting traffic to node-3",
+                    "compiling_wasm: optimization_level=3 target=browser",
+                    "anomaly_detection: false_positive rate < 0.01%",
+                    "deploying_hotfix: patch v2.1.4 applied successfully"
+                ];
+                const randomLog = `[SYSTEM] ${codeSnippets[Math.floor(Math.random() * codeSnippets.length)]}`;
+
+                // Keep last 50 logs
+                setSystemLogs(prev => [randomLog, ...prev].slice(0, 50));
+            }, 100); // 100ms = 10 logs per second (fast)
+        }
+        return () => clearInterval(logInterval);
+    }, [isActive]);
+
+    // The Game Loop (1s Tick) - Scoring & Stats
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (isActive && gameTime < 60) {
@@ -69,7 +104,7 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
 
                 // Update Teams Logic with Scripted Lead Changes
                 setTeams((prevTeams) => prevTeams.map(team => {
-                    // Generate realistic system log
+                    // Generate realistic system log (Team specific)
                     const logTypes = [
                         `[${team.id.toUpperCase()}] Container k8s-pod-${Math.random().toString(36).substring(2, 6)} scaled to 3 replicas`,
                         `[${team.id.toUpperCase()}] GPU cluster us-east-2a allocated 8x A100`,
@@ -80,7 +115,14 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
                     ];
 
                     const shouldLog = Math.random() > 0.6;
+                    // We can also add these team logs to the main systemLogs if desired, 
+                    // but for now they stay on the team object for individual display if needed.
+                    // Actually, let's push them to systemLogs too for the "Master Log" view.
                     const newLog = shouldLog ? logTypes[Math.floor(Math.random() * logTypes.length)] : null;
+
+                    if (newLog) {
+                        setSystemLogs(prev => [newLog, ...prev].slice(0, 50));
+                    }
 
                     // ====== SCRIPTED LEAD CHANGES ======
                     // These create dramatic position swaps at specific times
@@ -119,54 +161,35 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
                     }
                     // T+52s: Final showdown - random leader
                     if (gameTime === 52) {
-                        const finalBoostTeams = ['alpha', 'gamma', 'epsilon'];
-                        if (finalBoostTeams.includes(team.id)) {
-                            scoreBoost = Math.random() * 20;
-                        }
+                        // Randomizer
+                        scoreBoost = Math.floor(Math.random() * 30);
                     }
 
-                    // Random fluctuation (larger swings: ±5 instead of ±1)
-                    const randomChange = (Math.random() * 10 - 5);
+                    if (boostLog) {
+                        setSystemLogs(prev => [boostLog!, ...prev].slice(0, 50));
+                    }
 
-                    // Event Scripting (T+10s: Gamma gets flagged)
-                    const isFlagEvent = gameTime === 10 && team.id === 'gamma';
-                    const flagLog = isFlagEvent ? `[ALERT] Policy Engine: Unauthorized data access detected` : null;
-
-                    // Clamp score between 0-100
-                    const newScore = Math.min(100, Math.max(0, team.score + randomChange + scoreBoost));
-
+                    // Update Velocity and Score
+                    const newVelocity = [...team.velocity.slice(1), 50 + scoreBoost + Math.random() * 20 - 10];
                     return {
                         ...team,
-                        velocity: [...team.velocity.slice(1), Math.max(0, team.velocity[9] + (Math.random() * 15 - 7))],
-                        score: newScore,
-                        status: isFlagEvent ? 'flagged' : team.status,
-                        logs: [...team.logs, newLog, boostLog, flagLog].filter(Boolean).slice(-5) as string[]
+                        velocity: newVelocity,
+                        score: team.score + (scoreBoost > 0 ? scoreBoost : Math.random() > 0.5 ? 1 : 0),
+                        logs: newLog ? [newLog, ...team.logs].slice(0, 10) : team.logs
                     };
                 }));
 
-                // Random Bid Generation (20% chance per tick)
-                if (Math.random() > 0.8) {
-                    const sponsors = ["Pfizer", "J&J", "Medtronic", "Google Health", "Neuralink"];
-                    const randomTeam = initialTeams[Math.floor(Math.random() * initialTeams.length)];
-                    const newBid: Bid = {
-                        id: Math.random().toString(36).substring(7),
-                        sponsor: sponsors[Math.floor(Math.random() * sponsors.length)],
-                        amount: Math.floor(Math.random() * 50) * 1000 + 10000, // $10k - $60k
-                        teamId: randomTeam.name,
-                        timestamp: new Date().toLocaleTimeString()
-                    };
-                    setBids(prev => [newBid, ...prev].slice(0, 5)); // Keep last 5
-                }
-
             }, 1000);
         } else if (gameTime >= 60) {
-            setIsActive(false); // Game Over
+            // End Game
+            setTeams(prev => prev.map(t => ({ ...t, status: 'winner' }))); // Simplified winner logic
         }
+
         return () => clearInterval(interval);
     }, [isActive, gameTime]);
 
     return (
-        <SimulationContext.Provider value={{ isActive, gameTime, teams, bids, startSimulation, stopSimulation }}>
+        <SimulationContext.Provider value={{ isActive, gameTime, teams, bids, systemLogs, startSimulation, stopSimulation }}>
             {children}
         </SimulationContext.Provider>
     );
@@ -174,6 +197,8 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
 
 export const useSimulation = () => {
     const context = useContext(SimulationContext);
-    if (!context) throw new Error("useSimulation must be used within a SimulationProvider");
+    if (context === undefined) {
+        throw new Error("useSimulation must be used within a SimulationProvider");
+    }
     return context;
 };

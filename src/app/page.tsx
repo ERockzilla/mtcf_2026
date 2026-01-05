@@ -207,41 +207,37 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* FOOTER DATA STREAM & LINKS */}
-        <div className="mt-auto pt-16 pb-4 flex w-full items-center justify-between px-4 sm:px-8 text-[10px] font-mono text-slate-600 z-20">
-          {/* Left: Git Link + Stats */}
-          <div className="flex items-center gap-4">
-            <Link href="https://github.com" target="_blank">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-cyan-400 hover:bg-cyan-950/30">
-                <Github className="h-4 w-4" />
-                <span className="sr-only">GitHub</span>
-              </Button>
-            </Link>
-            <span className="hidden sm:inline">FREQ: 40.23Hz</span>
-          </div>
 
-          {/* Center: System Status */}
-          <div className="hidden sm:flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500/50 animate-pulse" />
-            <span>SYS: ONLINE</span>
-          </div>
-
-          {/* Right: RSS + Loc */}
-          <div className="flex items-center gap-4">
-            <span className="hidden sm:inline">LOC: US-EAST-1</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-2 text-slate-500 hover:text-orange-400 hover:bg-orange-950/30"
-              onClick={() => alert("RSS Feed Verified: 12 Active Channels")}
-            >
-              <Rss className="h-4 w-4" />
-              <span className="hidden sm:inline">FEED</span>
-            </Button>
-          </div>
-        </div>
       </div>
 
+      {/* FOOTER - Fixed Bottom with background for visibility */}
+      <div className="absolute bottom-0 left-0 right-0 z-50 flex w-full items-center justify-between px-6 py-4 pb-8 md:pb-4 text-[10px] font-mono text-slate-500 bg-gradient-to-t from-black via-black/90 to-transparent">
+        {/* Left */}
+        <div className="flex items-center gap-4">
+          <Link href="https://github.com/ERockzilla/mtcf_2026" target="_blank">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-cyan-400 hover:bg-cyan-950/30">
+              <Github className="h-4 w-4" />
+              <span className="sr-only">GitHub</span>
+            </Button>
+          </Link>
+          <span className="hidden sm:inline">FREQ: 40.23Hz</span>
+        </div>
+
+        {/* Center */}
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-green-500/50 animate-pulse" />
+          <span>SYS: ONLINE</span>
+        </div>
+
+        {/* Right */}
+        <div className="flex items-center gap-4">
+          <span className="hidden sm:inline">LOC: US-EAST-1</span>
+          <Button variant="ghost" size="sm" className="h-8 gap-2 text-slate-500 hover:text-orange-400 hover:bg-orange-950/30" onClick={() => alert("RSS Feed Verified: 12 Active Channels")}>
+            <Rss className="h-4 w-4" />
+            <span className="hidden sm:inline">FEED</span>
+          </Button>
+        </div>
+      </div>
     </main>
   );
 }
