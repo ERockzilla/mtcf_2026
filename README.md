@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MedTech Cognitive Foundry (MTCF) Demo
 
-## Getting Started
+![MTCF Badge](https://img.shields.io/badge/Status-Operational-cyan) ![Security](https://img.shields.io/badge/Security-Hardened-green) ![Framework](https://img.shields.io/badge/Built%20With-Next.js%2014-black)
 
-First, run the development server:
+## 🌐 Vision: The Inspiration Engine
+The **MTCF Demo** is a high-fidelity "Wizard of Oz" simulation platform designed to showcase the future of AI-driven medical governance and operations. It serves as a visual storytelling tool for the *"MedTech Cognitive Foundry"*, creating an immersive experience of a futuristic, automated medical ecosystem.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Key Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. Immersive 3D Visualization
+- **Atomic Core Visualization**: A central 3D animated component representing the cognitive core of the system (Atom/Solar style).
+- **Matrix Rain**: Dynamic background showing real-time data ingestion.
+- **Responsive Animations**: Built with **Framer Motion** for smooth, futuristic transitions.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Live Simulation Arena
+- **Multi-View Dashboard**: Switch between different active "Teams" (Alpha, Beta, Gamma) processing AI tasks.
+- **Real-Time Telemetry**: Live charts showing system load, active nodes, and thermal status.
+- **Oversight Mode**: Dedicated "Team Gamma" view for regulatory AI monitoring (simulated video feed).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Governance & Security
+- **Interactive Graph**: A ReactFlow-powered network graph visualizing AI data pipelines and audit checkpoints.
+- **Security Hardening**: Pre-configured `customHttp.yml` for AWS Amplify headers (HSTS, XSS Protection).
+- **Easter Eggs**: Hidden developer tools (Secrets in Console, `/editor` route) to simulate a "hackable" layer.
 
-## Learn More
+## 🛠️ Tech Stack
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS, Lucide Icons
+- **Animation**: Framer Motion
+- **Visualization**: Recharts, ReactFlow
+- **Deployment**: AWS Amplify
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Local Development
+1.  **Clone**: `git clone <repo>`
+2.  **Install**: `npm install`
+3.  **Run**: `npm run dev`
+4.  **Access**: Open `http://localhost:3000`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Secret Features
+- **Developer Console**: Check F12 console for system boot logs.
+- **Secure Editor**: Navigate to `/editor` to access the classified text editor.
 
-## Deploy on Vercel
+## ☁️ Deployment (AWS Amplify)
+This project is optimized for deployment on AWS Amplify with the domain `rockrun.systems`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1.  **Push** code to GitHub `main` branch.
+2.  **Connect** repository in AWS Amplify.
+3.  **Verify** headers using `curl -I https://rockrun.systems`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [DEPLOY.md](./DEPLOY.md) for detailed instructions.
+
+---
+*MedTech Cognitive Foundry - Building the Future of Responsible AI*
