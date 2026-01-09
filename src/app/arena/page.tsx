@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
-import { TriangleAlert, Terminal, Activity, Shield, Cpu, Play, Home } from "lucide-react";
+import { TriangleAlert, Terminal, Activity, Shield, Cpu, Play, Home, Eye } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { useSimulation } from "@/context/SimulationContext";
 
@@ -17,7 +17,7 @@ const SolarSystem3D = dynamic(() => import('@/components/SolarSystem3D'), { ssr:
 
 export default function ArenaPage() {
     const router = useRouter();
-    const { isActive, teams, bids, gameTime, stopSimulation, systemLogs } = useSimulation();
+    const { isActive, teams, bids, viewerCount, gameTime, stopSimulation, systemLogs } = useSimulation();
     const [timeLeft, setTimeLeft] = useState(7200);
     const [focusedIndex, setFocusedIndex] = useState(2);
     const endOfLogsRef = useRef<HTMLDivElement>(null);
@@ -79,6 +79,13 @@ export default function ArenaPage() {
         return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
+    const formatViewerCount = (count: number) => {
+        if (count >= 1000) {
+            return `${(count / 1000).toFixed(1)}K`;
+        }
+        return count.toString();
+    };
+
     return (
         <div className="flex h-screen w-full flex-col bg-slate-950 text-slate-50 overflow-y-auto lg:overflow-hidden font-sans">
 
@@ -125,6 +132,17 @@ export default function ArenaPage() {
                     <div className="flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded bg-cyan-500 font-bold text-slate-900 text-sm md:text-base">M</div>
                     <h1 className="text-sm md:text-lg font-semibold tracking-wide text-gray-200">MTCF <span className="text-cyan-500">ARENA</span></h1>
                     <Badge variant="outline" className="border-red-500 text-red-500 animate-pulse text-[10px] md:text-xs hidden sm:inline-flex">LIVE</Badge>
+                    <div className="hidden sm:flex items-center gap-1.5 text-[10px] md:text-xs text-slate-400 bg-slate-800/50 px-2 py-1 rounded">
+                        <Eye className="h-3 w-3" />
+                        <motion.span
+                            key={viewerCount}
+                            initial={{ opacity: 0.5, y: -2 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="font-mono"
+                        >
+                            {formatViewerCount(viewerCount)}
+                        </motion.span>
+                    </div>
                 </div>
                 <div className="text-xs md:text-sm text-slate-400 font-mono">
                     <span className="hidden md:inline mr-2 text-slate-500">T-MINUS</span>
@@ -241,9 +259,11 @@ export default function ArenaPage() {
                             transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
                             className="flex gap-8 text-[10px] md:text-xs font-mono text-cyan-400 uppercase tracking-widest"
                         >
-                            <span>+++ NEW BID: Pfizer places $50k on Team Alpha +++</span>
+                            <span>+++ NEW BID: NovaSynth Medical places $75k on Team Alpha +++</span>
                             <span>+++ REGULATORY ALERT: Team Beta flagged +++</span>
+                            <span>+++ BID UPDATE: Axiom BioTech increases stake on Team Gamma +++</span>
                             <span>+++ SYSTEM: GPU Cluster B re-routed +++</span>
+                            <span>+++ OBSERVER: Cortex Neurotech joins arena +++</span>
                         </motion.div>
                     </div>
                 </div>
@@ -353,24 +373,61 @@ export default function ArenaPage() {
                                         <Badge variant="outline" className="text-green-500 border-green-500 animate-pulse">MARKET OPEN</Badge>
                                     </div>
                                     <AnimatePresence>
-                                        {bids.map((bid) => (
-                                            <motion.div
-                                                key={bid.id}
-                                                initial={{ opacity: 0, y: -20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0 }}
-                                                className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/50 p-3"
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-slate-200">{bid.sponsor}</span>
-                                                    <span className="text-xs text-slate-500">Target: {bid.teamId}</span>
-                                                </div>
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-sm font-bold text-green-400">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(bid.amount)}</span>
-                                                    <span className="text-[10px] text-slate-600">{bid.timestamp}</span>
-                                                </div>
-                                            </motion.div>
-                                        ))}
+                                        {bids.map((bid) => {
+                                            // Color coding based on bid amount
+                                            const getBidStyle = (amount: number) => {
+                                                if (amount >= 1000000) {
+                                                    return {
+                                                        text: "text-amber-400 font-extrabold",
+                                                        border: "border-amber-500/50 bg-amber-950/20",
+                                                        glow: "shadow-[0_0_15px_rgba(245,158,11,0.3)]",
+                                                        badge: "🔥"
+                                                    };
+                                                } else if (amount >= 500000) {
+                                                    return {
+                                                        text: "text-yellow-400 font-bold",
+                                                        border: "border-yellow-500/30 bg-yellow-950/10",
+                                                        glow: "",
+                                                        badge: "⚡"
+                                                    };
+                                                } else if (amount >= 100000) {
+                                                    return {
+                                                        text: "text-green-400 font-bold",
+                                                        border: "border-slate-800 bg-slate-900/50",
+                                                        glow: "",
+                                                        badge: ""
+                                                    };
+                                                }
+                                                return {
+                                                    text: "text-green-500",
+                                                    border: "border-slate-800 bg-slate-900/50",
+                                                    glow: "",
+                                                    badge: ""
+                                                };
+                                            };
+                                            const style = getBidStyle(bid.amount);
+
+                                            return (
+                                                <motion.div
+                                                    key={bid.id}
+                                                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    className={`flex items-center justify-between rounded-lg border p-3 ${style.border} ${style.glow}`}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold text-slate-200">{bid.sponsor}</span>
+                                                        <span className="text-xs text-slate-500">Target: {bid.teamId}</span>
+                                                    </div>
+                                                    <div className="flex flex-col items-end">
+                                                        <span className={`text-sm ${style.text}`}>
+                                                            {style.badge} {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(bid.amount)}
+                                                        </span>
+                                                        <span className="text-[10px] text-slate-600">{bid.timestamp}</span>
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
                                     </AnimatePresence>
                                     {bids.length === 0 && (
                                         <div className="text-center text-slate-600 text-sm py-8">Waiting for opening bell...</div>
@@ -419,6 +476,18 @@ export default function ArenaPage() {
 
                     </Tabs>
                 </div>
+            </div>
+
+            {/* Mobile Floating Nav - Always visible on mobile */}
+            <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+                <Button
+                    onClick={handleReturnToHub}
+                    size="sm"
+                    className="gap-2 rounded-full border border-cyan-500/50 bg-slate-900/90 backdrop-blur px-4 text-cyan-50 hover:bg-cyan-900/70 shadow-lg shadow-cyan-500/20"
+                >
+                    <Home className="h-4 w-4" />
+                    Back to Hub
+                </Button>
             </div>
         </div>
     );

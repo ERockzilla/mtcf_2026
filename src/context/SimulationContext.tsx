@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
 export type Team = {
@@ -25,6 +25,7 @@ type SimulationContextType = {
     gameTime: number; // 0 to 60
     teams: Team[];
     bids: Bid[];
+    viewerCount: number; // Live viewer count
     systemLogs: string[]; // High-speed system logs
     startSimulation: () => void;
     stopSimulation: () => void;
@@ -41,19 +42,37 @@ const initialTeams: Team[] = [
     { id: 'epsilon', name: 'Team Epsilon', velocity: Array(10).fill(55), score: 70, status: 'active', logs: [] },
 ];
 
+// Fictitious MedTech company sponsors
+const SPONSORS = [
+    'NovaSynth Medical',
+    'HelixMed Systems',
+    'Axiom BioTech',
+    'Zenith Therapeutics',
+    'Pulse Dynamics',
+    'Cortex Neurotech',
+    'Vantage MedDevices',
+    'Stratos Healthcare',
+];
+
 export const SimulationProvider = ({ children }: { children: ReactNode }) => {
     const [isActive, setIsActive] = useState(false);
     const [gameTime, setGameTime] = useState(0);
     const [teams, setTeams] = useState<Team[]>(initialTeams);
     const [bids, setBids] = useState<Bid[]>([]);
+    const [viewerCount, setViewerCount] = useState(8500);
     const [systemLogs, setSystemLogs] = useState<string[]>([]);
     const router = useRouter();
+
+    // Ref to access current teams without causing effect re-runs
+    const teamsRef = useRef(teams);
+    useEffect(() => { teamsRef.current = teams; }, [teams]);
 
     const startSimulation = () => {
         setIsActive(true);
         setGameTime(0);
         setTeams(initialTeams);
         setBids([]); // Reset bids
+        setViewerCount(8500 + Math.floor(Math.random() * 2000)); // Reset viewer count with variance
         setSystemLogs([]);
         router.push('/arena');
     };
@@ -63,6 +82,79 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
         setGameTime(0);
         // We can clear logs or keep them
     };
+
+    // BID GENERATOR - Creates new bids from fictitious sponsors with escalating prices
+    useEffect(() => {
+        let bidTimeout: NodeJS.Timeout;
+        let bidCount = 0;
+
+        const generateBid = () => {
+            if (!isActive) return;
+
+            const currentTeams = teamsRef.current;
+            bidCount++;
+
+            // Escalating bid amounts based on bid count (simulates auction heating up)
+            let minAmount: number;
+            let maxAmount: number;
+
+            if (bidCount <= 5) {
+                // Early phase: $50k - $100k
+                minAmount = 50000;
+                maxAmount = 100000;
+            } else if (bidCount <= 12) {
+                // Mid phase: $100k - $500k
+                minAmount = 100000;
+                maxAmount = 500000;
+            } else if (bidCount <= 20) {
+                // Hot phase: $500k - $1M
+                minAmount = 500000;
+                maxAmount = 1000000;
+            } else {
+                // Mega phase: $1M - $5M
+                minAmount = 1000000;
+                maxAmount = 5000000;
+            }
+
+            const amount = Math.floor(Math.random() * (maxAmount - minAmount)) + minAmount;
+
+            const newBid: Bid = {
+                id: `bid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                sponsor: SPONSORS[Math.floor(Math.random() * SPONSORS.length)],
+                amount: amount,
+                teamId: currentTeams[Math.floor(Math.random() * currentTeams.length)].name,
+                timestamp: new Date().toLocaleTimeString(),
+            };
+            setBids(prev => [newBid, ...prev].slice(0, 15));
+
+            // Faster bid frequency: 2-4 seconds
+            bidTimeout = setTimeout(generateBid, 2000 + Math.random() * 2000);
+        };
+
+        if (isActive) {
+            // First bid after 1.5 seconds
+            bidTimeout = setTimeout(generateBid, 1500);
+        }
+
+        return () => clearTimeout(bidTimeout);
+    }, [isActive]); // Removed teams from dependency array
+
+    // VIEWER COUNT FLUCTUATION
+    useEffect(() => {
+        let viewerInterval: NodeJS.Timeout;
+        if (isActive) {
+            viewerInterval = setInterval(() => {
+                setViewerCount(prev => {
+                    // Trend upward slightly with random fluctuation
+                    const change = Math.floor(Math.random() * 300) - 100;
+                    const newCount = prev + change;
+                    // Keep between 5000 and 50000
+                    return Math.max(5000, Math.min(50000, newCount));
+                });
+            }, 3000);
+        }
+        return () => clearInterval(viewerInterval);
+    }, [isActive]);
 
     // HIGH SPEED LOG GENERATOR (100ms)
     useEffect(() => {
@@ -189,7 +281,7 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
     }, [isActive, gameTime]);
 
     return (
-        <SimulationContext.Provider value={{ isActive, gameTime, teams, bids, systemLogs, startSimulation, stopSimulation }}>
+        <SimulationContext.Provider value={{ isActive, gameTime, teams, bids, viewerCount, systemLogs, startSimulation, stopSimulation }}>
             {children}
         </SimulationContext.Provider>
     );

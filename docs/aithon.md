@@ -181,9 +181,22 @@ Launching a complex, multi-sided platform in 14 days requires an aggressive, mil
 ## 7. Strategic Implications and Future Horizons
 
 ### 7.1 Intellectual Property (IP) Models
-The "Tiered Assignment" model creates a predictable IP flow.
-* **Winning Solutions**: IP is automatically assigned to the Sponsor upon payout.
-* **Non-Winning Solutions**: IP enters a "Commons" or can be bid on by other sponsors in a secondary auction. This prevents "IP hoarding" and encourages open innovation.
+
+> **📋 See [ip_framework.md](./ip_framework.md) for the complete IP policy documentation.**
+
+The MTCF implements a **Tiered IP Model** where Sponsors select IP terms before challenge launch:
+
+| Mode | Name | IP Outcome | Best For |
+|------|------|------------|----------|
+| **A** | Total Transfer | 100% assignment to Sponsor | Production components, CAD files |
+| **B** | Non-Exclusive License | Creator retains IP; Sponsor gets license | Early concepts, ideation |
+| **C** | Option Model | 6-month exclusive option period | Complex systems, startups |
+
+**Key Protections:**
+* **Background IP Exception**: Creators retain ownership of pre-existing tools
+* **AI Provenance Declaration**: Mandatory disclosure of generative AI usage
+* **Runner-Up Acquisition**: Sponsors can acquire non-winning solutions (20% prize, 90 days)
+* **Black Box Submissions**: Solutions visible only to Sponsor and Judges during competition
 
 ### 7.2 Ethical AI and Bias Mitigation
 The MTCF must proactively address the "Black Box" nature of AI. The Steering Committee’s "Constraint Triangle" must include Explainability Requirements. Teams using LLMs like Med-PaLM 2 must implement "Chain of Thought" logging to ensure the AI's reasoning can be audited for bias against underrepresented patient populations.

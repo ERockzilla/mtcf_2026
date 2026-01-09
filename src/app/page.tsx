@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSimulation } from "@/context/SimulationContext";
 import { useEffect, useState, useRef } from "react";
 import dynamic from 'next/dynamic';
-import { Github, Rss } from "lucide-react";
+import { Github, Rss, Info } from "lucide-react";
 
 const MatrixRain = dynamic(() => import('@/components/MatrixRain'), { ssr: false });
 
@@ -90,11 +90,23 @@ export default function Home() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 1 }}
-        className="absolute top-4 sm:top-8 left-0 right-0 z-[5] flex flex-col items-center text-center"
+        className="absolute top-4 sm:top-8 left-0 right-0 z-[15] flex flex-col items-center text-center"
       >
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-          MTCF
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+            MTCF
+          </h1>
+          <Link href="/about">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 sm:h-10 sm:w-10 rounded-full border-cyan-500/50 bg-cyan-950/30 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-900/50 hover:border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all"
+            >
+              <Info className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="sr-only">About & IP Info</span>
+            </Button>
+          </Link>
+        </div>
         <p className="text-[10px] sm:text-xs font-light tracking-[0.15em] sm:tracking-[0.2em] text-cyan-400/70 uppercase mt-1">
           MedTech Cognitive Foundry
         </p>
