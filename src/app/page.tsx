@@ -7,9 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSimulation } from "@/context/SimulationContext";
 import { useEffect, useState, useRef } from "react";
 import dynamic from 'next/dynamic';
-import { Github, Rss, Info } from "lucide-react";
+import { Github, Rss, Info, Pencil } from "lucide-react";
 
 const MatrixRain = dynamic(() => import('@/components/MatrixRain'), { ssr: false });
+const GaussianBeamVortex3DBackground = dynamic(() => import('@/components/GaussianBeamVortex3DBackground'), { ssr: false });
+
+// Feature flag: Set to false to revert to MatrixRain if 3D background doesn't work well
+const USE_3D_BACKGROUND = true;
 
 export default function Home() {
   const { startSimulation } = useSimulation();
@@ -54,11 +58,8 @@ export default function Home() {
   return (
     <main className="relative flex h-screen w-full flex-col items-center overflow-hidden bg-black text-white selection:bg-cyan-500/30">
 
-      {/* Matrix Rain Background - Base Layer */}
-      <MatrixRain />
-
-      {/* N Logo Hider (Bottom Right) */}
-      <div className="fixed bottom-0 right-0 w-16 h-16 bg-black z-[9999] pointer-events-none" />
+      {/* Background - Toggle between 3D Vortex and Matrix Rain */}
+      {USE_3D_BACKGROUND ? <GaussianBeamVortex3DBackground /> : <MatrixRain />}
 
       {/* 3...2...1 Countdown Overlay */}
       <AnimatePresence>
@@ -223,30 +224,24 @@ export default function Home() {
       </div>
 
       {/* FOOTER - Fixed Bottom with background for visibility */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 flex w-full items-center justify-between px-6 py-4 pb-8 md:pb-4 text-[10px] font-mono text-slate-500 bg-gradient-to-t from-black via-black/90 to-transparent">
-        {/* Left */}
-        <div className="flex items-center gap-4">
+      <div className="absolute bottom-0 left-0 right-0 z-50 flex w-full items-center justify-center px-6 py-4 pb-6 md:pb-4 bg-gradient-to-t from-black via-black/90 to-transparent">
+        <div className="flex items-center gap-3">
           <Link href="https://github.com/ERockzilla/mtcf_2026" target="_blank">
             <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-cyan-400 hover:bg-cyan-950/30">
               <Github className="h-4 w-4" />
               <span className="sr-only">GitHub</span>
             </Button>
           </Link>
-          <span className="hidden sm:inline">FREQ: 40.23Hz</span>
-        </div>
-
-        {/* Center */}
-        <div className="hidden sm:flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-green-500/50 animate-pulse" />
-          <span>SYS: ONLINE</span>
-        </div>
-
-        {/* Right */}
-        <div className="flex items-center gap-4">
-          <span className="hidden sm:inline">LOC: US-EAST-1</span>
-          <Button variant="ghost" size="sm" className="h-8 gap-2 text-slate-500 hover:text-orange-400 hover:bg-orange-950/30" onClick={() => alert("RSS Feed Verified: 12 Active Channels")}>
+          {/* Hidden scratchpad link */}
+          <Link href="/scratchpad">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600/40 hover:text-cyan-400 hover:bg-cyan-950/30 opacity-30 hover:opacity-100 transition-all">
+              <Pencil className="h-4 w-4" />
+              <span className="sr-only">Scratchpad</span>
+            </Button>
+          </Link>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-orange-400 hover:bg-orange-950/30" onClick={() => alert("RSS Feed Verified: 12 Active Channels")}>
             <Rss className="h-4 w-4" />
-            <span className="hidden sm:inline">FEED</span>
+            <span className="sr-only">RSS Feed</span>
           </Button>
         </div>
       </div>

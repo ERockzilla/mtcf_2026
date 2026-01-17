@@ -13,7 +13,6 @@ customHeaders:
         value: 'same-origin'
       - key: 'Permissions-Policy'
         value: 'geolocation=(), microphone=(), camera=()'
-      # Custom App Theme Headers
       - key: 'X-MTCF-Protocol'
         value: 'Active'
       - key: 'X-Theme-Mode'
